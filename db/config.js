@@ -8,11 +8,10 @@
 var mongoose = require('mongoose');
 
 // DB connection/configuration
-var dbUrl = 'mongodb://159.203.254.178:27017/penguin';
-mongoose.connect(dbUrl);
-var db = mongoose.connection;
-db.on('error', console.error.bind(console, 'connection error:'));
-db.once('open', function() {
+mongoose.connect('mongodb://159.203.254.178:27017/penguin');
+var dbConnection = mongoose.connection;
+dbConnection.on('error', console.error.bind(console, 'connection error:'));
+dbConnection.once('open', function() {
   console.log('Successfully connected to mongodb at', dbUrl);
 });
 

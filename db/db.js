@@ -3,7 +3,7 @@
  * The mongodb server is configured in db/config.js
 */
 
-var User = require('./config').User;
+// var User = require('./config').User;
 var Promise = require('bluebird');
 
 exports.db = {
