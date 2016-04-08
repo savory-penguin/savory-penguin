@@ -7,11 +7,11 @@ var User = require('./config').User;
 var Promise = require('bluebird');
 
 exports.db = {
-  getUsers: function(name, email) {
+  getUsers: function(username, email) {
     // Creates object to query database
     var dbQueryObject = {};
-    if (name) {
-      dbQueryObject.name = name;
+    if (username) {
+      dbQueryObject.username = username;
     }
     if (email) {
       dbQueryObject.email = email;
@@ -29,9 +29,9 @@ exports.db = {
     });
   },
 
-  addUser: function(name, email, funfact, profileimage) {
+  addUser: function(username, email, funfact, profileimage) {
     var newDbEntry = {
-      name: name,
+      username: username,
       email: email,
       funfact: funfact,
       profileimage: profileimage
