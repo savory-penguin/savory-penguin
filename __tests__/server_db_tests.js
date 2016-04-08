@@ -5,8 +5,11 @@ var $ = require('jquery');
 jest.unmock('bluebird');
 var Promise = require('bluebird');
 
+jest.unmock('mongoose');
+var mongoose = require('mongoose');
+
 jest.unmock('../db/db.js');
-var db = require('../db/db.js');
+var db = require('../db/db.js').db;
 
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
 
@@ -35,26 +38,28 @@ describe('Basic server functionality', () => {
   });
 });
 
-// describe('Basic database functionality', () => {
-//   xit('Should be able to add documents to the users table', (done) => {
-//     db.addUser("rahim", "test@test.com", "likes candy", "somepath.gif")
-//       .then(function(newUser) {
-//         db.getUsers('rahim')
-//           .then(function(users) {
-//             expect(users.length).toEqual(1);
-//             done();
-//           })
-//           .catch(function(error) {
-//             console.log('Error finding test user "rahim" in database. Failed during getUser step.', error);
-//             expect(false).toEqual(true);
-//           });
-//       })
-//       .catch(function(error) {
-//         console.log('Error finding test user "rahim" in database. Failed during addUser step.', error);
-//         expect(false).toEqual(true);
-//       });
-//   });
-//   xit('Should be able to delete documents from the users table', (done) => {
+describe('Basic database functionality', () => {
+  it('Should be able to add documents to the users table', (done) => {
+    db.addUser("rahim", "test@test.com", "likes candy", "somepath.gif")
+      .then(function(newUser) {
+        db.getUsers('rahim')
+          .then(function(users) {
+            expect(users.length).toEqual(1);
+            done();
+          })
+          .catch(function(error) {
+            console.log('Error finding test user "rahim" in database. Failed during getUser step.', error);
+            expect(false).toEqual(true);
+            done();
+          });
+      })
+      .catch(function(error) {
+        console.log('Error finding test user "rahim" in database. Failed during addUser step.', error);
+        expect(false).toEqual(true);
+        done();
+      });
+  });
+  xit('Should be able to delete documents from the users table', (done) => {
 
-//   });
-// });
+  });
+});
