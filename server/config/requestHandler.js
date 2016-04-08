@@ -1,3 +1,7 @@
+// The below hard-coded examples are for testing purposes. Will be removed once Foursquare API is in place.
+var restaurant = JSON.parse(fs.readFileSync('../sample_objects/restaurant.json'));
+var matchedUser = JSON.parse(fs.readFileSync('../sample_objects/matched_user.json'));
+
 module.exports = {
   getHome: function(req, res) {
     // TODO:
@@ -16,8 +20,13 @@ module.exports = {
   },
 
   getMatch: function(req, res) { 
-    // TODO: implement web sockets    
-    res.send('Matching...');
+    var responseJSON = {
+      restaurant: restaurant,
+      matchedUser = matchedUser
+    };
+
+    var stringifiedResponseJSON = JSON.stringify(responseJSON);
+    res.send(responseJSON);
   },
 
 };
