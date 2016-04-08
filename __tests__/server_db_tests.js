@@ -1,7 +1,7 @@
 // Require depedencies needed for testing
 jest.unmock('jquery');
 var $ = require('jquery');
-
+ 
 jest.unmock('bluebird');
 var Promise = require('bluebird');
 
