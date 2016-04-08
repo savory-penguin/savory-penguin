@@ -3,7 +3,7 @@
  * The mongodb server is configured in db/config.js
 */
 
-// var User = require('./config').User;
+var User = require('./config').User;
 var Promise = require('bluebird');
 
 exports.db = {
@@ -51,7 +51,7 @@ exports.db = {
     });
   },
 
-  getAll: function() {
+  getAllUsers: function() {
     return new Promise(function(resolve, reject) {
       User.find(function(error, users) {
         if (error) {
@@ -59,6 +59,26 @@ exports.db = {
           reject(error);
         } else {
           resolve(users);
+        }
+      });
+    });
+  },
+
+  removeUser: function(username, email) {
+    var dbQueryObject = {};
+    if (username) {
+      dbQueryObject.username = username;
+    }
+    if (email) {
+      dbQueryObject.email = email;
+    }
+
+    return new Promise(function(resolve, reject) {
+      User.remove(dbQueryObject, function(error) {
+        if(error) {
+          reject(error)
+        } else {
+          resolve();
         }
       });
     });
