@@ -2,10 +2,11 @@
 jest.unmock('jquery');
 var $ = require('jquery');
 
-// Import server dependances jest.unmock('../server.js');
-// var server = require('../server');
-// Import database dependencies jest.unmock('../db/config.js');
-// var db = require('../db/config');
+jest.unmock('bluebird');
+var Promise = require('bluebird');
+
+jest.unmock('../db/db.js');
+var db = require('../db/db.js');
 
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
 
@@ -34,11 +35,26 @@ describe('Basic server functionality', () => {
   });
 });
 
-describe('Basic database functionality', () => {
-  it('Should be able to add documents to the users table', (done) => {
+// describe('Basic database functionality', () => {
+//   xit('Should be able to add documents to the users table', (done) => {
+//     db.addUser("rahim", "test@test.com", "likes candy", "somepath.gif")
+//       .then(function(newUser) {
+//         db.getUsers('rahim')
+//           .then(function(users) {
+//             expect(users.length).toEqual(1);
+//             done();
+//           })
+//           .catch(function(error) {
+//             console.log('Error finding test user "rahim" in database. Failed during getUser step.', error);
+//             expect(false).toEqual(true);
+//           });
+//       })
+//       .catch(function(error) {
+//         console.log('Error finding test user "rahim" in database. Failed during addUser step.', error);
+//         expect(false).toEqual(true);
+//       });
+//   });
+//   xit('Should be able to delete documents from the users table', (done) => {
 
-  });
-  it('Should be able to delete documents from the users table', (done) => {
-
-  });
-});
+//   });
+// });
