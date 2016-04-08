@@ -1,3 +1,9 @@
+/*
+ * This file (config.js) sets up the mongodb connection, defines the schema for all tables, and creates
+ * a 'User' mongoose object while will be used in db/db.js
+*/
+
+
 // Dependencies
 var mongoose = require('mongoose');
 
