@@ -1,12 +1,15 @@
 // Require depedencies needed for testing
 jest.unmock('jquery');
 var $ = require('jquery');
-// Import server dependances jest.unmock('../server.js');
-// var server = require('../server');
-// Import database dependencies jest.unmock('../db/config.js');
-// var db = require('../db/config');
 
-console.log(jasmine.DEFAULT_TIMEOUT_INTERVAL);
+jest.unmock('bluebird');
+var Promise = require('bluebird');
+
+jest.unmock('mongoose');
+jest.unmock('../db/config.js');
+var User = require('../db/config.js').User;
+
+jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
 
 describe('Basic server functionality', () => {
   it('Should accept and respond to GET requests at the /match endpoint', (done) => {
@@ -32,3 +35,4 @@ describe('Basic server functionality', () => {
     });
   });
 });
+
