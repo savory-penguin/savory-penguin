@@ -2,9 +2,9 @@ var express = require('express');
 // var facebook = require('./config/facebook.js');
 // var passport = require('passport');
 // var FacebookStrategy = require('passport-facebook').Strategy;
-
+var bodyParser = require('body-parser');
 var app = express();
-
+app.use(bodyParser.json());
 // TODO setup connection to database
 
 // passport middleware configuration
