@@ -7,7 +7,9 @@ module.exports = function (app, express) {
   app.get('/signin', requestHandler.getSignin);
   app.get('/match', requestHandler.getMatch);
 
-
+  app.get('/photos', requestHandler.getPhotos);
+  app.post('/photos', requestHandler.postPhotos);
+  
   // facebook authentication
   app.get('/auth/facebook',
     passport.authenticate('facebook'));
