@@ -109,7 +109,7 @@ module.exports = {
             matchedUser.save(function(error) {
               if (error) {
                 console.log('Could not update isActive status of matched user', matchedUser, error);
-                response.status(500).send();
+                res.status(500).send();
               } else {
                 foursquare.getRestaurant(longitude, latitude)
                   .then(function(restaurant) {
@@ -124,9 +124,9 @@ module.exports = {
                     newMatch.save(function(error) {
                       if (error) {
                         console.log('Could not add match to SuccessfulMatch table', newMatch, error);
-                        response.status(500).send();
+                        res.status(500).send();
                       } else {
-                        response.status(200).send();
+                        res.status(200).send();
                       }
                     });
                   })
@@ -141,16 +141,16 @@ module.exports = {
             newMatchRequest.save(function(error) {
               if (error) {
                 console.log('Could not save user to MatchRequest table', username, error);
-                response.status(500).send();
+                res.status(500).send();
               } else {
-                response.status(200).send();
+                res.status(200).send();
               }
             });
           }
         })
         .catch(function(error) {
           console.log('Could not retrieve active match requests', error);
-          response.status(500).send();
+          res.status(500).send();
         });
 
     } else if (requestType === 'retrieve-match') {
@@ -178,10 +178,10 @@ module.exports = {
         })
         .catch(function(error) {
           console.log('Could not retrieve match for user', error);
-          response.status(500).send();
+          res.status(500).send();
         });
     } else {
-      response.status(400).send();
+      res.status(400).send();
     }
   },
 
