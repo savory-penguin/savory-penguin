@@ -108,7 +108,7 @@ exports.db = {
 
   getMatchRequests: function() {
     // Will only look for requests made in the last 2 minutes
-    var requestTimeCutoff = new Date() - (2 * 60 * 1000); // = 2min * 60s/min * 1000ms/s
+    var requestTimeCutoff = new Date() - (45000); // = 45s
     return new Promise(function(resolve, reject) {
       MatchRequest.find({ isActive: true, timeStamp: { $gt: requestTimeCutoff } }, function(error, matchRequests) {
         if (error) {
@@ -123,7 +123,7 @@ exports.db = {
 
   getSuccessfulMatchForUser: function(username) {
     // Will only look for matches made in the last 2 minutes
-    var matchTimeCutoff = new Date() - (2 * 60 * 1000); // = 2min * 60s/min * 1000ms/s
+    var matchTimeCutoff = new Date() - (60 * 1000); // = 60s/min * 1000ms/s
     return new Promise(function(resolve, reject) {
       SuccessfulMatch.find( { $or: [{ firstMatchedUsername: username, matchTime: { $gt: matchTimeCutoff } }, { secondMatchedUsername: username, matchTime: { $gt: matchTimeCutoff } }] }, function(error, matches) {
         if (error) {

@@ -172,3 +172,20 @@ describe('Matching algo functionality', () => {
     });
   });
 });
+
+describe('Username api endpoint functionality', (done) => {
+  it('Should respond to GET requests at the /users/:username endpoint when username is valid', (done) => {
+    request.get('127.0.0.1:8000/users/bobiscool', (error, response, body) => {
+      if (error) {
+        expect(true).toEqual(false);
+        done();
+      } else {
+        body = JSON.parse(body);
+        expect(body.statusCode).toEqual(200);
+        expect(body.username).toEqual('bobiscool');
+        expect(body.email).toEqual('bob@bob.com');
+        done();
+      }
+    });
+  });
+});
