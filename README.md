@@ -22,7 +22,7 @@ Supported operating systems are >= iOS 7.0
 
 [![Michelle He](https://dl.dropboxusercontent.com/s/zecyw2vna8m56d3/michelleheh.png?dl=0)](https://github.com/michelleheh)
 
-[![Rahim Dharrsi](http://i.imgur.com/wuOUMmA.png | height=100)](https://github.com/rahimftd)
+[![Rahim Dharrsi](http://i.imgur.com/wuOUMmA.png | height=50)](https://github.com/rahimftd)
 
 [![Kevin Nguyen](https://dl.dropboxusercontent.com/s/wyebxbavnc7ihk7/kevinwin.png?dl=0)](https://github.com/kevinwin)
   
