@@ -1,4 +1,6 @@
 ![](https://dl.dropboxusercontent.com/s/5utw16rifv9cmqe/banner-128.png?dl=0) 
+![Pic](https://s3.amazonaws.com/poly-screenshots.angel.co/Project/49/284111/9614db93bd26c7f1ee02ee920c83046f-original.png) 
+![Demo](https://s3.amazonaws.com/poly-screenshots.angel.co/Project/49/284111/2d48fdcb2991a7f074c3143e634289c3-original.gif) 
 ---
 
 # waddle [![Build Status](https://travis-ci.org/savory-penguin/waddle.svg?branch=master)](https://travis-ci.org/savory-penguin/waddle)
