@@ -50,6 +50,15 @@ module.exports = StyleSheet.create({
     color: 'white',
     backgroundColor: 'transparent',
   },
+  mainBottomText: {
+    position: 'absolute',
+    bottom: 125,
+    fontSize: 18,
+    textAlign: 'justify',
+    fontFamily: 'Raleway-Light',
+    color: 'white',
+    backgroundColor: 'transparent',
+  },
   textInput: {
     height: 50,
     padding: 10,
@@ -70,6 +79,21 @@ module.exports = StyleSheet.create({
   },
   button: {
     height: 45,
+    flexDirection: 'row',
+    backgroundColor: 'white',
+    borderColor: 'white',
+    borderWidth: 0,
+    borderRadius: 8,
+    marginBottom: 10,
+    marginTop: 10,
+    alignSelf: 'stretch',
+    justifyContent: 'center'
+  },
+  signupButton: {
+    position: 'absolute',
+    bottom: 75,
+    height: 45,
+    width: 315,
     flexDirection: 'row',
     backgroundColor: 'white',
     borderColor: 'white',
@@ -150,6 +174,17 @@ module.exports = StyleSheet.create({
     fontFamily: 'Raleway-Light',
     color: 'white'
   },
+  starbox: {
+    marginTop: 30,
+    marginBottom: 30,
+    alignSelf: 'center',
+    width: 220,
+    height: 40,
+    overflow: 'hidden'
+  },
+  starButton: {
+    flexDirection: 'row'
+  },
   feedbackText: {
     marginTop: 5,
     fontSize: 20,
@@ -163,6 +198,72 @@ module.exports = StyleSheet.create({
   map: {
     height: 360
   },
-
+  error: {
+    position: 'absolute',
+    bottom: 225,
+    color: 'red',
+    paddingTop: 10,
+    fontWeight: 'bold',
+    backgroundColor: 'transparent'
+    // backgroundColor: 'rgba(255, 255, 255, 0.5)'
+  },
+  /* Messenger styles */
+  messengerContainer: {
+    flex: 1,
+  },
+  searchInput: {
+    height: 50,
+    padding: 12,
+    marginRight: 5,
+    fontSize: 23,
+    borderWidth: 1,
+    borderColor: 'white',
+    borderRadius: 8,
+    color: 'white',
+  },
+  rowContainer: {
+    padding: 10,
+  },
+  footerContainer: {
+    alignItems: 'center',
+    flexDirection: 'column'
+  },
+  messageText: {
+    marginTop: 5,
+    fontSize: 20,
+    alignSelf: 'auto',
+    fontFamily: 'Raleway-Light',
+    color: 'white'
+  },
+  messageTextLeft: {
+    marginTop: 5,
+    fontSize: 25,
+    alignSelf: 'flex-start',
+    fontFamily: 'Raleway-Light',
+    color: 'white',
+    borderWidth: 1,
+    borderColor: 'white',
+    borderRadius: 15,
+    height: 35,
+    paddingRight: 10,
+    paddingLeft: 10,
+    paddingBottom: 22,
+    paddingTop: 2,
+  },
+  messageTextRight: {
+    marginTop: 5,
+    fontSize: 25,
+    alignSelf: 'flex-end',
+    fontFamily: 'Raleway-Light',
+    color: 'white',
+    borderWidth: 1,
+    borderColor: 'white',
+    borderRadius: 15,
+    height: 35,
+    paddingRight: 10,
+    paddingLeft: 10,
+    paddingBottom: 22,
+    paddingTop: 2,
+  },
 });
 

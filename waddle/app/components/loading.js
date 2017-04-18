@@ -50,14 +50,16 @@ class Loading extends Component{
       // open Xcode, go to Debug menu > Simulate Location > SF
 
     navigator.geolocation.getCurrentPosition((position) => {
-      console.log('loading.js user current location is', position);
-      console.log('loading.js request a match end point: ',`${IP_address}/match`);
+      // console.log('loading.js user current location is', position);
+      // console.log('loading.js request a match end point: ',`${IP_address}/match`);
+      // console.log('lunch or coffee is.... ', this.props.lunchOrCoffee)
       fetch(`${IP_address}/match`, {
         headers: {
           requestType: 'request-match',
           longitude: position.coords.longitude,
           latitude: position.coords.latitude,
-          username: this.props.username
+          username: this.props.username,
+          lunchOrCoffee: this.props.lunchOrCoffee
         }
       })
         .catch((err) => {
@@ -81,9 +83,14 @@ class Loading extends Component{
         clearTimeout(checkTimeout);
         console.log('this is the json:', json);
         this.setState({restaurant: json.restaurant});
-        this.setState({match: json.firstMatchedUsername.username !== this.props.username ? json.firstMatchedUsername : json.secondMatchedUsername});
+        this.setState({match: json.firstMatchedUser.username !== this.props.username ? json.firstMatchedUser : json.secondMatchedUser});
+        console.log('json.timestamp:', json.timestamp);
+        this.setState({dbNameTimestamp: json.timestamp});
         console.log('the important thing:', this.state.match);
         this.handleMatch();
+        // for chat DB name:
+       
+        
       })
       .catch((err) => {
         console.log('error retrieving match', err);
@@ -101,13 +108,20 @@ class Loading extends Component{
   handleMatch() {
       this.setState({isLoading: false});
       this.props.navigator.immediatelyResetRouteStack(this.props.navigator.getCurrentRoutes().slice(0, -1));
+      this.props.restaurant = this.state.restaurant;
+      this.props.match = this.state.match;
+
       this.props.navigator.push({
         title: 'Results',
         component: Results,
         passProps: {
           restaurant: this.state.restaurant,
           match: this.state.match,
-          username: this.props.username
+          // chat variables
+          userLeft: this.props.username,
+          userRight: this.state.match,
+          dbNameTimestamp: this.state.dbNameTimestamp,
+          ...this.props
         }
       });
   }
@@ -120,7 +134,7 @@ class Loading extends Component{
           animating={this.state.isLoading}
           color="black"
           size="large"
-          style={{transform: [{scale: 3}]}}>
+          style={{transform: [{scale: 2}]}}>
         </ActivityIndicatorIOS>
       </View>
     )    

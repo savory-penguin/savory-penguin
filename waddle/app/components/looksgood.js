@@ -59,7 +59,7 @@ class LooksGood extends Component{
 
     this.props.navigator.immediatelyResetRouteStack(this.props.navigator.getCurrentRoutes().slice(0, -1));
     this.props.navigator.push({
-      title: 'Welcome!',
+      title: 'Welcome',
       component: Welcome,
       passProps: {
         username: this.props.username,
@@ -72,6 +72,7 @@ class LooksGood extends Component{
   }
 
   render(){
+
     return (
       <View style={styles.mainContainer}>
         <Image 

@@ -15,10 +15,10 @@ catch(e) {
 exports.client_id = keys.client_id || '';
 exports.client_secret = keys.client_secret || '';
 
-exports.getRestaurant = function(longitude, latitude) {
+exports.getRestaurant = function(longitude, latitude, lunchOrCoffee) {
   var maxResults = 50; // max # of results to return
   var searchRadius = 500; // # of meters from the specified longitude/latitude to search
-  var categoryId = '4d4b7105d754a06374d81259';
+  var categoryId = lunchOrCoffee === 'lunch' ? '4d4b7105d754a06374d81259' : '4bf58dd8d48988d1e0931735'
 
   /*
    * The foursquare API provides a variety of options that can be passed in as part of the query string ('qs'):

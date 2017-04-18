@@ -15,13 +15,28 @@ var {
 } = React;
 
 class Welcome extends Component{
-  handleSubmit(){
+
+  handleSubmit(lunchOrCoffee){
     console.log('you did it, you pushed the lunch buddy button');
     // do stuff w/ navigator
     this.props.navigator.push({
       title: "Finding you a match",
       component: Loading,
-      passProps: {username: this.props.username}
+      passProps: {
+        lunchOrCoffee: lunchOrCoffee,
+        ...this.props
+      }
+    });
+  }
+
+  takeProfilePic() {
+    console.log('lets take a new profile pic')
+    var Selfie = require('./selfie');
+    this.props.navigator.push({
+      title: "Take a selfie!",
+      // leftButton: "Signup",
+      component: Selfie,
+      passProps: this.props
     });
   }
 
@@ -30,16 +45,26 @@ class Welcome extends Component{
     console.log('match.js link to image: ', imageLink);
     return (
       <View style={styles.mainContainer}>
-        <Text style={styles.welcomeText}>welcome, {this.props.firstName || 'rando'}</Text>
-        <Image 
-          style={styles.avatar} 
-          source={{uri: imageLink}} />
+        <Text style={styles.welcomeText}>Welcome, { this.props.firstName || this.props.username}</Text>
+        <TouchableHighlight
+        onPress={this.takeProfilePic.bind(this)}>
+          <Image 
+            style={styles.avatar} 
+            source={{uri: imageLink}} />
+        </TouchableHighlight>
         <TouchableHighlight
           style={styles.button}
-          onPress={this.handleSubmit.bind(this)}
+          onPress={this.handleSubmit.bind(this, 'lunch')}
           underlayColor="#f9ecdf">
           <Text style={styles.buttonText}>gimme a lunch buddy</Text>
         </TouchableHighlight>
+        <TouchableHighlight
+          style={styles.button}
+          onPress={this.handleSubmit.bind(this, 'coffee')}
+          underlayColor="#f9ecdf">
+          <Text style={styles.buttonText}>gimme a coffee buddy</Text>
+        </TouchableHighlight>
+        
       </View>
     );
   }

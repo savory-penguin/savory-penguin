@@ -4,17 +4,35 @@ var formidable = require('formidable');
 var request = require('request');
 var foursquare = require('./foursquare.js');
 var db = require('../../db/db.js').db;
+var bcrypt = require('bcrypt-nodejs');
 
 // The below hard-coded examples are for testing purposes. Will be removed once Foursquare API is in place.
-var restaurant = {"id":"513a4806c84c60d09153e2cc","name":"SQwers Izakaya & Sushi BAR","contact":{"phone":"4157029979","formattedPhone":"(415) 702-9979"},"location":{"address":"3015 Geary Blvd","crossStreet":"bwtn Cook St & Blake St","lat":37.781747440661505,"lng":-122.45133876800537,"distance":418,"postalCode":"94118","mayNotNeedAddress":false,"cc":"US","city":"San Francisco","state":"CA","country":"United States","formattedAddress":["3015 Geary Blvd (bwtn Cook St & Blake St)","San Francisco, CA 94118","United States"]},"categories":[{"id":"4bf58dd8d48988d1d2941735","name":"Sushi Restaurant","pluralName":"Sushi Restaurants","shortName":"Sushi","icon":{"prefix":"https://ss3.4sqi.net/img/categories_v2/food/sushi_","suffix":".png"},"primary":true}],"verified":false,"stats":{"checkinsCount":313,"usersCount":199,"tipCount":10},"url":"http://sqwers.eat24hour.com","delivery":{"id":"27042","url":"http://www.seamless.com/food-delivery/restaurant.27042.r?a=1026&utm_source=Foursquare&utm_medium=affiliate&utm_campaign=SeamlessOrderDeliveryLink","provider":{"name":"seamless"}},"allowMenuUrlEdit":true,"specials":{"count":0,"items":[]},"hereNow":{"count":0,"summary":"Nobody here","groups":[]},"referralId":"v-1460144909","venueChains":[]};
-var firstMatchedUser = {"username":"Nathaniel","email":"nedwards@gmail.com","funfact":"I can code all the things","profileimage":"https://avatars1.githubusercontent.com/u/5132757?v=3&s=400"};
-var secondMatchedUser = {"username":"Sloth","email":"sloth@slothmail.com","funfact":"I am a sloth","profileimage":"https://i.ytimg.com/vi/x6VgzTsToyY/hqdefault.jpg"};
+var restaurant = {"id":"513a4806c84c60d09153e2cc",
+"name":"SQwers Izakaya & Sushi BAR",
+"contact":{"phone":"4157029979",
+"formattedPhone":"(415) 702-9979"},
+"location":{"address":"3015 Geary Blvd","crossStreet":"bwtn Cook St & Blake St","lat":37.781747440661505,"lng":-122.45133876800537,"distance":418,"postalCode":"94118","mayNotNeedAddress":false,"cc":"US","city":"San Francisco","state":"CA","country":"United States","formattedAddress":["3015 Geary Blvd (bwtn Cook St & Blake St)","San Francisco, CA 94118","United States"]},"categories":[{"id":"4bf58dd8d48988d1d2941735","name":"Sushi Restaurant","pluralName":"Sushi Restaurants","shortName":"Sushi","icon":{"prefix":"https://ss3.4sqi.net/img/categories_v2/food/sushi_","suffix":".png"},"primary":true}],"verified":false,"stats":{"checkinsCount":313,"usersCount":199,"tipCount":10},"url":"http://sqwers.eat24hour.com","delivery":{"id":"27042","url":"http://www.seamless.com/food-delivery/restaurant.27042.r?a=1026&utm_source=Foursquare&utm_medium=affiliate&utm_campaign=SeamlessOrderDeliveryLink","provider":{"name":"seamless"}},"allowMenuUrlEdit":true,"specials":{"count":0,"items":[]},"hereNow":{"count":0,"summary":"Nobody here","groups":[]},"referralId":"v-1460144909","venueChains":[]
+};
+var firstMatchedUser = {"firstName":"Nathan",
+"username":"Nathaniel",
+"averageRating": 3.5,
+"email":"nedwards@gmail.com",
+"funFact":"I can code all the things",
+"testprofileImage":"https://avatars1.githubusercontent.com/u/5132757?v=3&s=400"
+};
+var secondMatchedUser = {"firstName":"Sloth",
+"username":"Sloth",
+"averageRating": 2.5,
+"email":"sloth@slothmail.com",
+"funFact":"I am a sloth",
+"testprofileImage":"https://i.ytimg.com/vi/x6VgzTsToyY/hqdefault.jpg"
+};
 
 // Mongoose models
 var mongoose = require('mongoose');
 var db = require('../../db/db.js').db;
-var MatchRequest = require('../../db/config.js').MatchRequest;
-var SuccessfulMatch = require('../../db/config.js').SuccessfulMatch;
+var MatchRequest = require('../../db/models/matchRequest.js');
+var SuccessfulMatch = require('../../db/models/successfulMatch.js');
 
 
 // Bluebird promises used for interacting with database
@@ -39,7 +57,7 @@ var getDistanceFromLatLonInM = function(lat1,lon1,lat2,lon2) {
 
 // Iterates through potential matches and returns the first valid one found.
 // userLocation is an object-literal with properties longitude and latitude
-var getFirstValidMatch = function(username, matchRequestsArray, userLocation) {
+var getFirstValidMatch = function(username, lunchOrCoffee, matchRequestsArray, userLocation) {
   var validMatch;
   var lat1 = userLocation.latitude;
   var lon1 = userLocation.longitude;
@@ -50,13 +68,17 @@ var getFirstValidMatch = function(username, matchRequestsArray, userLocation) {
   console.log('username', username);
   console.log('latitude', lat1);
   console.log('longitude', lon1);
+  console.log('lunch or coffee: ', lunchOrCoffee);
   console.log('-----------------------');
 
   for (var i = 0; i < matchRequestsArray.length; i++) {
     var lat2 = matchRequestsArray[i].latitude;
     var lon2 = matchRequestsArray[i].longitude;
     // Check if the match request was not made by the same user and if the potential match is within the distance cutoff
-    if (matchRequestsArray[i].username !== username && getDistanceFromLatLonInM(lat1, lon1, lat2, lon2) <= distanceCutoff) {
+    if ( (matchRequestsArray[i].username !== username
+      && matchRequestsArray[i].lunchOrCoffee === lunchOrCoffee
+      )
+      && getDistanceFromLatLonInM(lat1, lon1, lat2, lon2) <= distanceCutoff) {
       validMatch = matchRequestsArray[i];
       break;
     }
@@ -70,34 +92,45 @@ module.exports = {
   postSignin: function(req, res) {
     // check user exist in the database
     console.log('postSignin fired!', req.body);
-    var username = req.body.username;
-    // var email = req.body.email;
-    db.getUsers(username)
-      .then(function(users){
-        if (users.length) {
-          res.status(200).send('Sign in successful');
-        } else {
-          res.status(401).send('incorrect username or email');
+    var email = req.body.email;
+    var password = req.body.password;
+    db.getUserByEmail(email)
+      .then(function(user){
+        if (user) {
+          console.log('postSignin: getUser returns a user', user);
+          db.attemptLogin(user[0], password)
+            .then(function(success) {
+              if (success) {
+                console.log('postSignin: getUser sign in successful ', success);
+                res.status(200).send('sign in successful');
+              } 
+            })
+            .catch(function(err) {
+              console.log('postSignin: password incorrect ', err);
+              res.status(401).send('invalid email/password combination');
+            })
         }
       })
       .catch(function(err){
-        console.log('There was an error calling db.getUsers from postSignin for user: ' + username, err);
-        res.status(500).send();
+        console.log('postSignin: user not found ', err);
+        res.status(401).send('invalid email/password combination');
       });
   },
 
   postSignup: function(req, res) {
+    var name = req.body.firstName;
     var username = req.body.username;
     var email = req.body.email;
+    var password = req.body.password;
     var funFact = req.body.funFact;
     var profileImage = req.body.profileImage;
 
-    db.addUser(username, email, funFact, profileImage)
+    return db.addUser(name, username, email, password, funFact, profileImage)
       .then(function(user){
         res.status(201).send('User Create!');
       })
       .catch(function(err){
-        console.log('There was an error calling db.addUser from postSignup for user: ' + username, err);
+        console.log('There was an error calling db.addUser from postSignup: ', err);
         res.status(500).send();
       });
   },
@@ -117,11 +150,13 @@ module.exports = {
      *              This will instruct the server to return the match, if available.
      */
 
-    // Request should contain the below headers
+    // Request should contain the below headers - REMEMBER THAT HTTP HEADERS ARE CONVERTED LOWERCASE!
     var longitude = req.headers.longitude;
     var latitude = req.headers.latitude;
     var username = req.headers.username;
     var requestType = req.headers.requesttype;
+    var lunchOrCoffee = req.headers.lunchorcoffee;
+    var timestamp = (new Date()).toString();
 
     console.log('---------------------------------------');
     console.log('Received match request with options....');
@@ -129,6 +164,8 @@ module.exports = {
     console.log('Username', username);
     console.log('latitude', latitude);
     console.log('longitude', longitude);
+    console.log('lunch or coffee?', lunchOrCoffee);
+    console.log('timestamp', timestamp);
     console.log('---------------------------------------');
 
     // Send 400 if headers not provided
@@ -148,26 +185,31 @@ module.exports = {
            * As such, the below vode (i.e., lines 120 onwards) will always fail the unit tests during continuous integration. 
            * Although all the code below has not been unit tested, it has been manually tested and is functional.
           */
-          if (foursquare.client_id === '') {
+          if (!foursquare.client_id) {
             if (requestType === 'retrieve-match'){
+              console.log('Here in ...retrieve-match... withOUT foursqure / timestamp: ', timestamp);
               var responseJSON = {
                 restaurant: restaurant,
                 firstMatchedUser: firstMatchedUser,
                 secondMatchedUser: secondMatchedUser,
-                matchTime: new Date()
+                matchTime: new Date(),
+                timestamp: timestamp,
               };
               res.status(200).send(responseJSON);
               return;
             } else if (requestType === 'request-match') {
-              res.status(200).send();
+              res.status(200);
+            } else {
+              res.status(200);
             }
           }
 
           if (requestType === 'request-match') {
-            // Check for active requests
+            // Check for active requests based on time alone
             db.getMatchRequests()
               .then(function(matchRequests) {
-                return getFirstValidMatch(username, matchRequests, { latitude: latitude, longitude: longitude });
+                // filter out requests based on location and lunch/coffee
+                return getFirstValidMatch(username, lunchOrCoffee, matchRequests, { latitude: latitude, longitude: longitude });
               })
               .then(function(matchedUser) {
                 if (matchedUser) {
@@ -177,7 +219,7 @@ module.exports = {
                       console.log('Could not update isActive status of matched user', matchedUser, error);
                       res.status(500).send();
                     } else {
-                      foursquare.getRestaurant(longitude, latitude)
+                      foursquare.getRestaurant(longitude, latitude, lunchOrCoffee)
                         .then(function(restaurant) {
                           // Save the new match to the SuccessfulMatch table
                           var stringifiedRestaurant = JSON.stringify(restaurant);
@@ -203,7 +245,7 @@ module.exports = {
                     }
                   });
                 } else {
-                  var newMatchRequest = new MatchRequest({ username: username, latitude: latitude, longitude: longitude });
+                  var newMatchRequest = new MatchRequest({ username: username, latitude: latitude, longitude: longitude, lunchOrCoffee: lunchOrCoffee });
                   newMatchRequest.save(function(error) {
                     if (error) {
                       console.log('Could not save user to MatchRequest table: ' + username, error);
@@ -225,29 +267,32 @@ module.exports = {
                 if (match) {
                   var firstMatchedUser; // Will store user object matching first user in match
                   var secondMatchedUser; // Will store user object matching second user in match
+                  console.log('Here in ...retrieve-match... with foursqure / timestamp: ', timestamp);
 
-                  db.getUsers(match.firstMatchedUsername)
+                  db.getUsersByUsername(match.firstMatchedUsername)
                     .then(function(users) {
                       firstMatchedUser = users[0].toObject();
 
-                      db.getUsers(match.secondMatchedUsername)
+                      db.getUsersByUsername(match.secondMatchedUsername)
                         .then(function(users) {
                           secondMatchedUser = users[0].toObject();
                           var responseObject = {
-                            firstMatchedUsername: firstMatchedUser,
-                            secondMatchedUsername: secondMatchedUser,
-                            restaurant: JSON.parse(match.restaurant)
+                            firstMatchedUser: firstMatchedUser,
+                            secondMatchedUser: secondMatchedUser,
+                            restaurant: JSON.parse(match.restaurant),
+                            // For dbNameChat:
+                            timestamp: timestamp,
                           };
                           stringifiedResponseObject = JSON.stringify(responseObject);
                           res.send(stringifiedResponseObject);
                         })
                         .catch(function(error) {
-                          console.log('There was an error calling db.getUsers from getMatch', error);
+                          console.log('There was an error calling db.getUsersByUsername from getMatch', error);
                           res.status(500).send();
                         });
                     })
                     .catch(function(error) {
-                      console.log('There was an error calling db.getUsers from getMatch', error);
+                      console.log('There was an error calling db.getUsersByUsername from getMatch', error);
                       res.status(500).send();
                     });
                 } else {
@@ -255,7 +300,7 @@ module.exports = {
                 }
               })
               .catch(function(error) {
-                console.log('There was an error calling db.getSuccessfulMatchForUser from getMatch for user: ' + username, error);
+                console.log('There was an error calling db.getSuccessfulMatchForUser from getMatch: ', error);
                 res.status(500).send();
               });
           } else {
@@ -266,15 +311,15 @@ module.exports = {
         }
       })
       .catch(function(error) {
-        console.log('Error calling db.checkIfUserExists from getMatch for user: ', username, error);
+        console.log('Error calling db.checkIfUserExists from getMatch: ', error);
         res.status(500).send();
       });
   },
 
   getUserInfo: function(req, res) {
-    var username = req.params.username.toLowerCase();
+    var email = req.params.email.toLowerCase();
 
-    db.getUsers(username)
+    db.getUserByEmail(email)
       .then(function(users) {
         var user = users[0];
         console.log(users);
@@ -282,17 +327,15 @@ module.exports = {
         res.status(200).json(users[0]);
       })
       .catch(function(error) {
-        console.log('There was an error calling db.getUsers from getUserInfo for user: ' + username, error);
+        console.log('There was an error calling db.getUsersByUsername from getUserInfo: ', error);
         res.status(500).send();
       });
   },
 
   getProfilePhoto: function(req, res) {
     var username = req.params.username.toLowerCase();
-    console.log(username);
-    // var file = username + '_' + 'profile.jpg'; // profile image name
 
-    db.getUsers(username)
+    db.getUsersByUsername(username)
       .then(function(users) {
         console.log(users[0]);
         var file  = users[0].profileImage;
@@ -313,7 +356,7 @@ module.exports = {
         
       })
       .catch(function(error) {
-        console.log('There was an error calling db.getUsers from getProfilePhoto for user: ' + username, error);
+        console.log('There was an error calling db.getUserByEmail from getProfilePhoto: ', error);
         res.status(500).send();
       });
   },
@@ -352,7 +395,7 @@ module.exports = {
           console.log('user updated: ', user);
         })
         .catch(function(error) {
-          console.log('There was an error calling db.updateUser from upload for user: ' + username, error);
+          console.log('There was an error calling db.updateUser from upload: ', error);
           res.status(500).send();
         });
 
@@ -366,15 +409,16 @@ module.exports = {
     var newRating = req.body.rating;
 
     // Check if a valid rating was provided
-    if (newRating < 1 || newRating > 3) {
+    if (newRating < 1 || newRating > 5) {
       res.status(400).send();
       return;
     }
 
-    db.getUsers(username)
+    db.getUsersByUsername(username)
       .then(function(users) {
         // Check if user exists
         if (users.length === 0) {
+          console.log('rated user does not exist')
           res.status(400).send();
           return;
         }
@@ -392,7 +436,7 @@ module.exports = {
         res.status(201).send();
       })
       .catch(function(error) {
-        console.log('Error calling getUsers from rateUser for ' + username, error);
+        console.log('Error calling getUsersByUsername from rateUser: ', error);
         res.status(500).send();
       });
   }

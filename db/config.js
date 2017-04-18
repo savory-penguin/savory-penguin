@@ -16,31 +16,32 @@ dbConnection.once('open', function() {
 });
 
 // Database schema
-var userSchema = mongoose.Schema({
-  username: String,
-  firstName: String,
-  email: String,
-  funFact: String,
-  profileImage: String,
-  matches: { type: Number, default: 0 },
-  averageRating: { type: Number, default: 0 }
-});
+// var userSchema = mongoose.Schema({
+//   username: String,
+//   firstName: String,
+//   email: String,
+//   password: String,
+//   funFact: String,
+//   profileImage: String,
+//   matches: { type: Number, default: 0 },
+//   averageRating: { type: Number, default: 0 }
+// });
 
-var matchRequestSchema = mongoose.Schema({
-  username: String,
-  latitude: Number,
-  longitude: Number,
-  timeStamp: { type: Date, default: Date.now }, // When did this user start looking for a match
-  isActive: { type: Boolean, default: true }
-});
+// var matchRequestSchema = mongoose.Schema({
+//   username: String,
+//   latitude: Number,
+//   longitude: Number,
+//   timeStamp: { type: Date, default: Date.now }, // When did this user start looking for a match
+//   isActive: { type: Boolean, default: true }
+// });
 
-var successfulMatchSchema = mongoose.Schema({
-  firstMatchedUsername: String,
-  secondMatchedUsername: String,
-  restaurant: String,
-  matchTime: { type: Date, default: Date.now } // When did the match happen
-});
+// var successfulMatchSchema = mongoose.Schema({
+//   firstMatchedUsername: String,
+//   secondMatchedUsername: String,
+//   restaurant: String,
+//   matchTime: { type: Date, default: Date.now } // When did the match happen
+// });
 
-exports.User = mongoose.model('User', userSchema);
-exports.MatchRequest = mongoose.model('MatchRequest', matchRequestSchema);
-exports.SuccessfulMatch = mongoose.model('SuccessfulMatch', successfulMatchSchema);
+// exports.User = mongoose.model('User', userSchema);
+// exports.MatchRequest = mongoose.model('MatchRequest', matchRequestSchema);
+// exports.SuccessfulMatch = mongoose.model('SuccessfulMatch', successfulMatchSchema);

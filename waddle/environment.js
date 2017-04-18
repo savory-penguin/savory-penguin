@@ -2,6 +2,7 @@ var env = require('./env.js');
 
 var _Environments = {
   development: {
+      // IP_address: 'http://192.168.0.104:8000'
       IP_address: 'http://localhost:8000'
   }, 
   production: {

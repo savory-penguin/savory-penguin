@@ -80,6 +80,7 @@ class Selfie extends Component{
   }
 
   handleMoveOn() {
+    console.log(this.props);
     this.props.navigator.push({
       title: "Looking Good!",
       component: LooksGood,

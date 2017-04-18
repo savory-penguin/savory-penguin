@@ -32,6 +32,8 @@ app.use(bodyParser.json());
 
 // configure server with routes
 require('./config/routes.js')(app, express);
+// open connection to db
+require('../db/config.js');
 
 app.listen(8000, function () {
   console.log('Example app listening on port 8000!');

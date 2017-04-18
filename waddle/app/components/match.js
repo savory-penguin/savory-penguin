@@ -25,21 +25,18 @@ class Match extends Component{
     this.props.navigator.push({
       title: 'Enjoy Your Lunch',
       component: Enjoy,
-      passProps: {
-        username: this.props.username,
-        match: this.props.match
-      }
+      passProps: this.props
     });
   }
 
   render(){
-    var imageLink = `${IP_address}/users/${this.props.match.username}/profilePhoto?$date={Date.now()}`;
+    var imageLink = this.props.match.testprofileImage || `${IP_address}/users/${this.props.match.username}/profilePhoto?$date={Date.now()}`;
     console.log('match.js link to image: ', imageLink);
+    console.log('match information: ', this.props.match);
     return (
       <View style={styles.mainContainer}>
         <Image 
         source={{uri: imageLink}}
-        // resizeMode="cover"
         onLoadEnd={()=>{console.log('image actually loaded, so........')}}
         style={styles.image}
         />

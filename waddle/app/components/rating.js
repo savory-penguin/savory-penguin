@@ -2,27 +2,33 @@ var React = require('react-native');
 var styles = require('./Styles');
 var IP_address = require('../../environment.js').IP_address;
 
-
 var {
   Component,
   View,
   Text,
   Image,
-  TouchableHighlight
+  TouchableHighlight,
+  TouchableOpacity
 } = React;
 
 class Rating extends Component{
   constructor(props) {
     super(props);
     this.state = {
-      feeback: ' '
+      feeback: ' ',
+      rated: false,
+      starsTopOffset: props.match.averageRating * 2 * -40
     };
   }
 
   ratingHandler(rating){
     console.log('user gives this rating: ', rating);
+
+    // update the stars displayed
+    this.setState({rated: true, starsTopOffset: rating * 2 * -40 });
+
+    //send the rating back to the server
     var url = `${IP_address}/rate`;
-    console.log('post rating end point', url);
 
     fetch(url, {
       method: 'POST',
@@ -38,42 +44,64 @@ class Rating extends Component{
       console.log('this is the response', res);
     }.bind(this));
 
+    // display the rating feedback
     var response = ['','Sorry to hear that...', 'We\'ll do better!', 'Awesome!', ];
     this.setState({
-      feedback: `${response[rating]}\nThank you for your feedback!`
+      feedback: `\n${response[Math.ceil(rating * 3 / 5)]}\nThank you for your feedback!`
     })
   }
 
+  goHome() {
+    console.log('passed props ', this.props)
+    var Welcome = require('./welcome.js');
+    this.props.navigator.push({
+      title: 'Welcome!',
+      component: Welcome,
+      passProps: this.props
+    });
+  }
+
   render(){
-    var imageLinkMatch = `${IP_address}/users/${this.props.match.username}/profilePhoto`;
-    // var imageLinkMatch = 'https://scontent.cdninstagram.com/hphotos-xaf1/t51.2885-15/s306x306/e15/10899304_1426072301036564_994441959_n.jpg';
+    var imageLinkMatch = this.props.match.testprofileImage || `${IP_address}/users/${this.props.match.username}/profilePhoto`;
     return (
       <View style={styles.mainContainer}>
         <View style={styles.avatarContainer}>
-          <Image source={{uri: imageLinkMatch}} style={styles.avatarMatch} />
+          <Image source={{uri: imageLinkMatch}} style={styles.image} />
         </View>
+        <View style={styles.starbox}>
+          {/* the image sprite with all the different ratings. adjusted by top position*/}
+          <Image style={{position: 'absolute', top: this.state.starsTopOffset}} source={require('../assets/stars.png')} />
+          {/*repeated, pressable views over each star*/}
+          <View style={styles.starButtons}>
+          {[0,1,2,3,4].map((index)=>{
+            return <TouchableOpacity
+              style={{
+                position: 'absolute', 
+                left: 44*index,
+                width: 44,
+                height: 40}}
+              onPress={this.ratingHandler.bind(this, index + 1)}
+              key={index} >
+              </TouchableOpacity>
+          })}
+          </View>
+        </View>
+
         <TouchableHighlight
           style={styles.button}
-          onPress={this.ratingHandler.bind(this, 3)}
+          onPress={this.goHome.bind(this)}
           underlayColor="#f9ecdf">
-          <Text style={styles.buttonText}>Love to hang out again!</Text>
+          <Text style={styles.buttonText}>Submit Rating</Text>
         </TouchableHighlight>
-        <TouchableHighlight
-          style={styles.button}
-          onPress={this.ratingHandler.bind(this, 2)}
-          underlayColor="#f9ecdf">
-          <Text style={styles.buttonText}>Meh...</Text>
-        </TouchableHighlight>
-        <TouchableHighlight
-          style={styles.button}
-          onPress={this.ratingHandler.bind(this, 1)}
-          underlayColor="#f9ecdf">
-          <Text style={styles.buttonText}>That was terrible! / No show...</Text>
-        </TouchableHighlight>
+
         <Text style={styles.feedbackText}>{this.state.feedback}</Text>
       </View>
     )
   }
+}
+
+class Star extends Component {
+
 }
 
 module.exports = Rating;
